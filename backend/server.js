@@ -11,6 +11,7 @@ import passport from './passport/passport.js';
 //Routers
 import notesRouter from './routers/notesRouter.js';
 import userRouter from './routers/userRouter.js';
+import categoriesRouter from './routers/categoriesRouter.js';
 
 const app = Express();
 
@@ -23,6 +24,7 @@ app.use(passport.initialize());
 
 app.use('/api/notes', notesRouter);
 app.use('/api/users', userRouter);
+app.use('/api/categories', categoriesRouter);
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
