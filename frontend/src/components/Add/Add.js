@@ -7,7 +7,7 @@ import { UserContext } from '../../contexts/userContext.js';
 import { DataContext } from '../../contexts/dataContext.js';
 import Swal from 'sweetalert2';
 
-const Add = ({archived}) => {
+const Add = ({archived, updateNotes, updateCategories}) => {
     const [modal, setModal] = useState(false);
     const toggle = () => setModal(!modal);
     const [title, setTitle] = useState('');
@@ -41,6 +41,7 @@ const Add = ({archived}) => {
                     text: 'Your note has been added',
                     timer: 1500
                 })
+                updateNotes()
             }).catch(err => {
                 console.log(err)
                 toggle();
@@ -98,6 +99,7 @@ const Add = ({archived}) => {
                         </FormGroup>
                         <CategoriesSelector
                             setSelectedCategories={setSelectedCategories}
+                            updateCategories={updateCategories}
                         />
                     </Form>
                 </ModalBody>

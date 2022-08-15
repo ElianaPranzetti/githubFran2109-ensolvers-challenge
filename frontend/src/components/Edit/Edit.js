@@ -8,7 +8,7 @@ import axios from "axios";
 import { reactAppApiEndpoint } from "./../../config/config.js";
 import Swal from 'sweetalert2';
 
-const Edit = ({note}) => {
+const Edit = ({note, updateNotes, updateCategories}) => {
     const [modal, setModal] = useState(false);
     const toggle = () => setModal(!modal);
     const [title, setTitle] = useState(note.title);
@@ -49,7 +49,6 @@ const Edit = ({note}) => {
             axios
                 .put(`${reactAppApiEndpoint}api/notes/${note.id}`, data, headers)
                 .then(res => {
-                    console.log(res.data);
                     setDataContext({ ...dataContext, notes: dataContext.notes.map(note => note.id === Number(res.data.id) ? res.data : note) });
                     toggle();
                     Swal.fire({
@@ -58,6 +57,7 @@ const Edit = ({note}) => {
                         text: 'Your note has been updated',
                         timer: 1500
                     })
+                    updateNotes()
                 }).catch(err => {
                     console.log(err)
                 })
@@ -99,7 +99,7 @@ const Edit = ({note}) => {
                             />
                             <FormFeedback>Please enter some Content</FormFeedback>
                         </FormGroup>
-                        {defaultCategories.length > 0 && <CategoriesSelector defaultCategories={defaultCategories} setSelectedCategories={setSelectedCategories}/>}
+                        {defaultCategories.length > 0 && <CategoriesSelector defaultCategories={defaultCategories} setSelectedCategories={setSelectedCategories} updateCategories={updateCategories}/>}
                     </Form>
                 </ModalBody>
                 <ModalFooter>

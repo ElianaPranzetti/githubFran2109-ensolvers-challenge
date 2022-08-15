@@ -6,7 +6,7 @@ import { UserContext } from './../../contexts/userContext.js';
 import { DataContext } from './../../contexts/dataContext.js';
 import { reactAppApiEndpoint } from "./../../config/config.js";
 
-const ArchiveUnarchive = ({archived, note}) => {
+const ArchiveUnarchive = ({archived, note, updateNotes}) => {
     const [userContext, setUserContext] = useContext(UserContext);
     const [dataContext, setDataContext] = useContext(DataContext);
 
@@ -25,6 +25,7 @@ const ArchiveUnarchive = ({archived, note}) => {
             .then(res => {
                 dataContext.notes.find(note2 => note2.id === note.id).archived = !note.archived;
                 setDataContext({ ...dataContext });
+                updateNotes();
             }).catch(err => {
                 console.log(err);
             })

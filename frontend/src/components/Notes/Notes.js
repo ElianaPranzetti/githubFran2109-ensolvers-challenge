@@ -1,6 +1,6 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { FaStickyNote } from "react-icons/fa";
-import { Card, CardBody, CardTitle, CardSubtitle, CardText, Col, Row, CardFooter, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Spinner } from 'reactstrap';
+import { Card, Button, CardBody, CardTitle, CardSubtitle, CardText, Col, Row, CardFooter, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Spinner } from 'reactstrap';
 import { UserContext } from "./../../contexts/userContext";
 import { DataContext } from "./../../contexts/dataContext";
 import { reactAppApiEndpoint } from "../../config/config.js";
@@ -10,6 +10,7 @@ import Remove from './../Remove/Remove.js';
 import ArchiveUnarchive from "./../ArchiveUnarchive/ArchiveUnarchive.js";
 import Edit from "./../Edit/Edit.js";
 import axios from "axios";
+import { io } from "socket.io-client";
 
 const Notes = () => {
     const [archived, setArchived] = useState(false);
@@ -19,7 +20,8 @@ const Notes = () => {
     const [categorySelected, setCategorySelected] = useState("All");
     const toggle = () => setDropdownOpen(!dropdownOpen);
     const [isLoading, setIsLoading] = useState(false);
-
+    const client = useRef();
+    
     const fetchNotes = (id = 0) => {
         const headers = {
             withCredentials: true,
@@ -47,6 +49,21 @@ const Notes = () => {
         }
         
     }
+    
+    const fetchCategories = () => {
+        const headers = {
+            withCredentials: true,
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }
+        axios.get(`${reactAppApiEndpoint}api/categories`, headers)
+        .then(res => {
+            setDataContext({ ...dataContext, categories: res.data });
+        }).catch(err => {
+            console.log(err);
+        })
+    }
 
     useEffect(() => {
         setIsLoading(true);
@@ -65,13 +82,41 @@ const Notes = () => {
             })
     } ,[]);
 
+    useEffect(() => {
+        const socket = io(reactAppApiEndpoint);
+
+        socket.on('refreshNotes', () => {
+            fetchNotes();
+        });
+
+        socket.on('refreshCategories', () => {
+            fetchCategories();
+        });
+
+        client.current = socket;
+
+        return() => {
+            socket.off('refreshNotes');
+            socket.off('refreshCategories');
+        }
+    }, [])
+
+    const send = () => {
+        client.current.emit('updateNotes');
+    }
+    const sendCategories = () => {
+        client.current.emit('updateCategories');
+    }
+
     return (
         <div style={{width:"80%"}}>
             <h1>My Notes</h1>
             <Row style={{marginBottom: "10px"}}>
-                <Col sm="3">
-                    <Add archived={archived}/>
-                </Col>
+                {userContext.token && (
+                    <Col sm="3">
+                        <Add archived={archived} updateNotes={send} updateCategories={sendCategories}/>
+                    </Col>
+                )}
                 <Col sm="3">
                     <Dropdown isOpen={dropdownOpen} toggle={toggle} direction="down" size="sm" >
                         <DropdownToggle caret>
@@ -138,9 +183,9 @@ const Notes = () => {
                                     userContext.token && (
                                         <CardFooter>
                                             <Row>
-                                                <Edit note={note}/>
-                                                <Remove note={note}/>
-                                                <ArchiveUnarchive archived={archived} note={note}/>
+                                                <Edit note={note} updateNotes={send} updateCategories={sendCategories}/>
+                                                <Remove note={note} updateNotes={send}/>
+                                                <ArchiveUnarchive archived={archived} note={note} updateNotes={send}/>
                                             </Row>
                                         </CardFooter>
                                     )

@@ -7,7 +7,7 @@ import axios from "axios";
 import { reactAppApiEndpoint } from "../../config/config.js";
 import Swal from "sweetalert2";
 
-const Remove = ({note}) => {
+const Remove = ({note, updateNotes}) => {
     const [modal, setModal] = useState(false);
     const toggle = () => setModal(!modal);
     const [dataContext, setDataContext] = useContext(DataContext);
@@ -32,6 +32,7 @@ const Remove = ({note}) => {
                     text: 'Your note has been removed',
                     timer: 1500
                 })
+                updateNotes();
             }).catch(err => {
                 console.log(err);
             });

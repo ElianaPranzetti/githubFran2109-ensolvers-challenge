@@ -7,7 +7,7 @@ import { reactAppApiEndpoint } from './../../config/config';
 import { UserContext } from '../../contexts/userContext.js';
 import { DataContext } from '../../contexts/dataContext.js';
 
-const Categories = ({ setSelectedCategories, defaultCategories = [] }) => {
+const Categories = ({ setSelectedCategories, defaultCategories = [], updateCategories }) => {
     const [newCategory, setNewCategory] = useState('');
     const [userContext, setUserContext] = useContext(UserContext);
     const [dataContext, setDataContext] = useContext(DataContext);
@@ -30,6 +30,7 @@ const Categories = ({ setSelectedCategories, defaultCategories = [] }) => {
                 setErrorMessage('');
                 setDataContext({ ...dataContext, categories: [...dataContext.categories, res.data] });
                 setNewCategory('');
+                updateCategories();
             }).catch(err => {
                 setErrorMessage(err.response.data.message);
             })
