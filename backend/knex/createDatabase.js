@@ -8,7 +8,8 @@ if( !(await db.schema.hasTable('notes')) ) {
         table.increments('id').primary();
         table.string('title');
         table.string('content');
-        table.timestamps(true, true);
+        table.string('created_at');
+        table.string('updated_at');
         table.boolean('archived').defaultTo(false);
     });
 }

@@ -1,69 +1,52 @@
 import { useEffect, useState, useContext } from "react";
-import { FaStickyNote, FaTrashAlt, FaEdit, FaArchive, FaRegArrowAltCircleUp } from "react-icons/fa";
+import { FaStickyNote } from "react-icons/fa";
 import { Card, CardBody, CardTitle, CardSubtitle, CardText, Col, Row, CardFooter, Button } from 'reactstrap';
 import { UserContext } from "./../../contexts/userContext";
+import { DataContext } from "./../../contexts/dataContext";
+import { reactAppApiEndpoint } from "../../config/config.js";
 import './Notes.css';
 import Add from './../Add/Add.js';
+import Remove from './../Remove/Remove.js';
+import ArchiveUnarchive from "./../ArchiveUnarchive/ArchiveUnarchive.js";
+import Edit from "./../Edit/Edit.js";
+import axios from "axios";
 
 const Notes = () => {
-    const [notes, setNotes] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [archived, setArchived] = useState(true);
+    const [archived, setArchived] = useState(false);
     const [userContext, setUserContext] = useContext(UserContext);
+    const [dataContext, setDataContext] = useContext(DataContext);
+
+    const fetchData = () => {
+        const headers = {
+            withCredentials: true,
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }
+        axios.get(reactAppApiEndpoint + 'api/notes/all', headers)
+            .then(res => {
+                setDataContext({ ...dataContext, categories: res.data.categories, notes: res.data.notes });
+            }).catch(err => {
+                console.log(err);
+            })        
+    }
+
 
     useEffect(() => {
-        setNotes([
-            {
-                id: 1,
-                title: "Note 1",
-                content: "This is note 1",
-                createdAt: "2020-01-01",
-                updatedAt: "2020-01-01",
-                archived: false,
-            },
-            {
-                id: 2,
-                title: "Note 2",
-                content: "This is note 2",
-                createdAt: "2020-01-01",
-                updatedAt: "2020-01-01",
-                archived: true,
-            },
-            {   
-                id: 3,
-                title: "Note 3",
-                content: "This is note 3",
-                createdAt: "2020-01-01",
-                updatedAt: "2020-01-01",
-                archived: false,
-            }
-        ]);
-        setCategories([
-            {
-                id: 1,
-                name: "Category 1",
-            },
-            {
-                id: 2,
-                name: "Category 2"
-            },
-            {
-                id: 3,
-                name: "Category 3"
-            }
-        ]);
+        fetchData();
     } ,[]);
 
     return (
         <div style={{width:"80%"}}>
             <h1>My Notes</h1>
-            <Add archived={archived} categories={categories} setCategories={setCategories}/>
+            <Add archived={archived}/>
             <p
                 onClick={() => setArchived(!archived)}
                 style={{
                     cursor: "pointer",
                     color: "blue",
-                    fontSize: "20px"
+                    fontSize: "20px",
+                    width: "auto"
                 }}
             >
                 {
@@ -75,8 +58,8 @@ const Notes = () => {
                 }
             </p>
             <div className="Notes">
-                {notes.map(note => (
-                    note.archived === archived && (
+                {dataContext.notes && dataContext.notes.map(note => (
+                    Boolean(note.archived) === archived && (
                         <Card key={note.id} className="Note">
                             <Row>
                                 <Col sm="4" className="NoteIcon" style={{paddingLeft: "30px", paddingTop: "10px"}}>
@@ -85,7 +68,7 @@ const Notes = () => {
                                 <Col sm="8">
                                     <CardBody>
                                         <CardTitle>{note.title}</CardTitle>
-                                        <CardSubtitle>Last Edited: {note.updatedAt}</CardSubtitle>
+                                        <CardSubtitle>Last Edited: {note.updated_at}</CardSubtitle>
                                         <CardText>{note.content}</CardText>
                                     </CardBody>
                                 </Col>
@@ -94,27 +77,9 @@ const Notes = () => {
                                 userContext.token && (
                                     <CardFooter>
                                         <Row>
-                                            <Col>
-                                                <Button color="primary" >
-                                                    <FaEdit size={"20px"}/>
-                                                </Button>
-                                            </Col>
-                                            <Col>
-                                                <Button color="danger">
-                                                    <FaTrashAlt size={"20px"}/>
-                                                </Button>
-                                            </Col>
-                                            <Col>
-                                                <Button color="success">
-                                                    {
-                                                        archived ? (
-                                                            <FaRegArrowAltCircleUp size={"20px"}/>
-                                                        ) : (
-                                                            <FaArchive size={"20px"}/>
-                                                        )
-                                                    }
-                                                </Button>
-                                            </Col>
+                                            <Edit note={note}/>
+                                            <Remove note={note}/>
+                                            <ArchiveUnarchive archived={archived} note={note}/>
                                         </Row>
                                     </CardFooter>
                                 )

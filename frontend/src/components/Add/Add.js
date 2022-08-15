@@ -1,13 +1,67 @@
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input, FormFeedback } from 'reactstrap';
 import { useState, useCallback, useEffect, useContext } from 'react';
 import CategoriesSelector from './../CategoriesSelector/CategoriesSelector';
+import axios from 'axios';
+import { reactAppApiEndpoint } from '../../config/config.js';
+import { UserContext } from '../../contexts/userContext.js';
+import { DataContext } from '../../contexts/dataContext.js';
+import Swal from 'sweetalert2';
 
-const Add = ({archived, categories, setCategories}) => {
+const Add = ({archived}) => {
     const [modal, setModal] = useState(false);
     const toggle = () => setModal(!modal);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [selectedCategories, setSelectedCategories] = useState([]);
+    const [dataContext, setDataContext] = useContext(DataContext);
+    const [userContext, setUserContext] = useContext(UserContext);
+
+    const handleSubmit = useCallback(() => {
+        if (title.length > 0 && content.length > 0) {
+            const data = {
+                title: title,
+                content: content,
+                categories: selectedCategories,
+                archived: archived
+            };
+            const headers = {
+                withCredentials: true,
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${userContext.token}`
+                }
+            }
+            axios
+                .post(`${reactAppApiEndpoint}api/notes`, data, headers)
+                .then(res => {
+                    console.log(res)
+                    setDataContext({ ...dataContext, notes: [...dataContext.notes, res.data] });
+                    toggle();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Your note has been added',
+                        timer: 1500
+                    })
+                }).catch(err => {
+                    console.log(err)
+                    toggle();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong!',
+                        timer: 1500
+                    })
+                });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Please fill in all fields',
+                timer: 1500
+            })
+        }
+    }, [title, content, selectedCategories, archived]);
 
     return (
         <>
@@ -44,15 +98,13 @@ const Add = ({archived, categories, setCategories}) => {
                             />
                             <FormFeedback>Please enter some Content</FormFeedback>
                         </FormGroup>
-                        <CategoriesSelector 
-                            categories={categories} 
-                            setCategories={setCategories}
-                            setSelectedCategories={setSelectedCategories} 
+                        <CategoriesSelector
+                            setSelectedCategories={setSelectedCategories}
                         />
                     </Form>
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="primary" onClick={toggle}>Create</Button>{' '}
+                    <Button color="primary" onClick={handleSubmit}>Create</Button>{' '}
                     <Button color="secondary" onClick={toggle}>Cancel</Button>
                 </ModalFooter>
             </Modal>

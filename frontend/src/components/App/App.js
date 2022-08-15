@@ -7,6 +7,7 @@ import Notes from './../Notes/Notes';
 import { UserContext } from './../../contexts/userContext';
 import { reactAppApiEndpoint } from './../../config/config.js';
 import axios from 'axios';
+import { DataProvider } from './../../contexts/dataContext';
 
 function App() {
   const [userContext, setUserContext] = useContext(UserContext);
@@ -88,7 +89,7 @@ function App() {
         <div className="d-flex justify-content-center" style={{marginTop: "30px"}}>
           
             <Routes>
-              <Route path="/" element={<Notes />} />
+              <Route path="/" element={<DataProvider><Notes /></DataProvider>} />
               <Route path="/login" element={<Login/>}/>
               <Route path="/register" element={<Register/>}/>
             </Routes>
