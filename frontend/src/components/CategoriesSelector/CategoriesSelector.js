@@ -7,7 +7,7 @@ import { reactAppApiEndpoint } from './../../config/config';
 import { UserContext } from '../../contexts/userContext.js';
 import { DataContext } from '../../contexts/dataContext.js';
 
-const Categories = ({ categories, setCategories, setSelectedCategories }) => {
+const Categories = ({ setSelectedCategories, defaultCategories = [] }) => {
     const [newCategory, setNewCategory] = useState('');
     const [userContext, setUserContext] = useContext(UserContext);
     const [dataContext, setDataContext] = useContext(DataContext);
@@ -37,6 +37,7 @@ const Categories = ({ categories, setCategories, setSelectedCategories }) => {
             setErrorMessage('Please enter a category name');
         }
     }
+
     return(
         <>
             <FormGroup>
@@ -62,6 +63,8 @@ const Categories = ({ categories, setCategories, setSelectedCategories }) => {
                             placeholder="Categories"
                         />
                     )}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    defaultValue={defaultCategories}
                 />
             </FormGroup>
             <FormGroup>

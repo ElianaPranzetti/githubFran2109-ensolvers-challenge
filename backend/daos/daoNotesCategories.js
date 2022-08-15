@@ -17,4 +17,18 @@ export default class daoNotesCategories extends containerMySql {
     async deleteMultiple(noteId) {
         return await this.knex(this.tableName).where('note_id', noteId).del();
     }
+    async getNotesFromCategory(categoryId) {
+        return await this.knex(this.tableName)
+            .join('notes', 'notes.id', 'notes_categories.note_id')
+            .select('notes.id', 'notes.title', 'notes.content', 'notes.archived', 'notes.created_at', 'notes.updated_at')
+            .where('category_id', categoryId)
+            .orderBy('notes.id');
+    }
+    async getCategoriesInNote(noteId) {
+        return await this.knex(this.tableName)
+            .join('categories', 'categories.id', 'notes_categories.category_id')
+            .select('categories.id', 'categories.name')
+            .where('note_id', noteId)
+            .orderBy('categories.id');
+    }
 }

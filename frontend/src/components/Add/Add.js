@@ -1,5 +1,5 @@
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input, FormFeedback } from 'reactstrap';
-import { useState, useCallback, useEffect, useContext } from 'react';
+import { useState, useContext } from 'react';
 import CategoriesSelector from './../CategoriesSelector/CategoriesSelector';
 import axios from 'axios';
 import { reactAppApiEndpoint } from '../../config/config.js';
@@ -15,8 +15,8 @@ const Add = ({archived}) => {
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [dataContext, setDataContext] = useContext(DataContext);
     const [userContext, setUserContext] = useContext(UserContext);
-
-    const handleSubmit = useCallback(() => {
+    
+    const handleSubmit = () => {
         if (title.length > 0 && content.length > 0) {
             const data = {
                 title: title,
@@ -31,28 +31,26 @@ const Add = ({archived}) => {
                   "Authorization": `Bearer ${userContext.token}`
                 }
             }
-            axios
-                .post(`${reactAppApiEndpoint}api/notes`, data, headers)
-                .then(res => {
-                    console.log(res)
-                    setDataContext({ ...dataContext, notes: [...dataContext.notes, res.data] });
-                    toggle();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: 'Your note has been added',
-                        timer: 1500
-                    })
-                }).catch(err => {
-                    console.log(err)
-                    toggle();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Something went wrong!',
-                        timer: 1500
-                    })
-                });
+            axios.post(`${reactAppApiEndpoint}api/notes`, data, headers)
+            .then(res => {
+                setDataContext({ ...dataContext, notes: [...dataContext.notes, res.data] });
+                toggle();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Your note has been added',
+                    timer: 1500
+                })
+            }).catch(err => {
+                console.log(err)
+                toggle();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong!',
+                    timer: 1500
+                })
+            });
         } else {
             Swal.fire({
                 icon: 'error',
@@ -61,7 +59,7 @@ const Add = ({archived}) => {
                 timer: 1500
             })
         }
-    }, [title, content, selectedCategories, archived]);
+    }
 
     return (
         <>

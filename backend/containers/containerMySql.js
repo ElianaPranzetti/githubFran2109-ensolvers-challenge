@@ -12,4 +12,7 @@ export default class containerMySql {
     async delete(id) {
         return await this.knex(this.tableName).where('id', id).del();
     }
+    async update(id, data) {
+        return await this.knex(this.tableName).where('id', id).update(data);
+    }
 }

@@ -13,4 +13,8 @@ export default class daoCategories extends containerMySql {
             return null;
         }
     }
+    async getAllOrdered(){
+        const allCategories = await this.knex(this.tableName).select('*').orderBy('name');
+        return allCategories;
+    }
 }
