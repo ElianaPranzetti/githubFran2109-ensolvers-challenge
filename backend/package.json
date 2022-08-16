@@ -5,7 +5,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
+    "start": "node server.js --f",
     "dev": "nodemon server.js --d --f",
     "cluster": "node server.js --d"
   },
