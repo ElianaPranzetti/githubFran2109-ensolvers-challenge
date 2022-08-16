@@ -87,6 +87,8 @@
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+### Deploy
+This app is deployed in heroku and is accesible clicking [here](https://frontend-ensolvers-filosi.herokuapp.com/)
 ## Getting Started
 
 In order to run and properly test the functionality of the system you must install.
